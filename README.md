@@ -5,3 +5,4 @@
 4. Harmonic Oscillator
 5. Rigid Rotor
 6. Radial plots for H orbitals
+7. Gaussian-type orbitals & STO-3G plots
