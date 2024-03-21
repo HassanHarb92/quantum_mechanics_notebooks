@@ -1,15 +1,14 @@
 import streamlit as st
 import numpy as np
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
+import plotly.graph_objects as go
 from scipy.special import sph_harm
 
-def plot_wavefunction(J, M):
+def plot_wavefunction_with_plotly(J, M):
     # Ensure M is within the valid range
     M = max(-J, min(J, M))
 
     # Angles
-    theta, phi = np.mgrid[0:2*np.pi:100j, 0:np.pi:50j]
+    phi, theta = np.mgrid[0:np.pi:50j, 0:2*np.pi:100j]
 
     # Spherical harmonics
     Y = sph_harm(M, J, theta, phi)
@@ -20,27 +19,38 @@ def plot_wavefunction(J, M):
     y = r * np.sin(phi) * np.sin(theta)
     z = r * np.cos(phi)
 
-    # Plot
-    fig = plt.figure(figsize=(8, 8))
-    ax = fig.add_subplot(111, projection='3d')
-    ax.plot_surface(x, y, z, rstride=1, cstride=1, color='c', alpha=0.6, linewidth=0)
-    st.pyplot(fig)
+    # Create the plot
+    fig = go.Figure(data=[go.Surface(z=z, x=x, y=y, colorscale='Viridis')])
+
+    # Update layout for a better view
+    fig.update_layout(title=f'Wavefunction for l = {J}, m = {M}', autosize=True,
+                      scene=dict(
+                          xaxis_title='X',
+                          yaxis_title='Y',
+                          zaxis_title='Z',
+                          xaxis=dict(nticks=4, range=[-0.5,0.5]),
+                          yaxis=dict(nticks=4, range=[-0.5,0.5]),
+                          zaxis=dict(nticks=4, range=[-0.5,0.5]),
+                      ),
+                      margin=dict(l=65, r=50, b=65, t=90))
+    st.plotly_chart(fig, use_container_width=True)
 
 # Streamlit UI
-st.title('Rigid Rotor Wavefunctions')
+st.title('Interactive Rigid Rotor Wavefunctions with Plotly')
 
 # Slider for J
-J = st.slider('J:', 0, 5, 0)
+J = st.slider('l:', 0, 5, 0)
 
-# Slider for M
-M = st.slider('M:', -J, J, 0)
-
-# Plotting button (optional, you can just call the plot function directly)
-if st.button('Plot Wavefunction'):
-    plot_wavefunction(J, M)
+# Conditionally set M slider's range
+if J == 0:
+    # Set M's range to only 0 when J is 0
+    M = 0
+    st.markdown("One m value allowed: 0")
+#    M = st.slider('M:', 0, 0, 0)
 else:
-    # Default plot or message
-    st.write('Use the sliders to adjust J and M, then press "Plot Wavefunction".')
+    # Adjusting M slider based on J
+    M_min, M_max = -J, J
+    M = st.slider('M:', M_min, M_max, 0)
 
-# Save this script as `streamlit_app.py` and run it using the command `streamlit run streamlit_app.py` in your terminal.
-
+# Plotting with Plotly for interactivity
+plot_wavefunction_with_plotly(J, M)
