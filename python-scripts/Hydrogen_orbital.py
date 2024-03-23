@@ -10,18 +10,18 @@ def psi_1s(r):
     return np.pi**-0.5 * np.exp(-r/a0)
 
 def plot_3d_psi():
-    # Create a grid
-    x = np.linspace(-3, 3, 50)
-    y = np.linspace(-3, 3, 50)
-    z = np.linspace(-3, 3, 50)
+    # Create a denser grid
+    x = np.linspace(-3, 3, 100)  # Increased number of points
+    y = np.linspace(-3, 3, 100)
+    z = np.linspace(-3, 3, 100)
     X, Y, Z = np.meshgrid(x, y, z)
     R = np.sqrt(X**2 + Y**2 + Z**2)
 
     # Calculate wavefunction
     Psi = psi_1s(R)**2  # Plotting the probability density
 
-    # Selecting a threshold for visualization
-    threshold = Psi.max()/10
+    # Selecting a higher threshold for visualization to manage the density
+    threshold = Psi.max()/20  # Adjusted for denser plot
     # Extract the coordinates and values that meet the threshold
     xs, ys, zs = X[Psi > threshold], Y[Psi > threshold], Z[Psi > threshold]
     values = Psi[Psi > threshold]
@@ -39,7 +39,7 @@ def plot_3d_psi():
     return fig
 
 # Streamlit app
-st.title('Interactive Visualization of the 1s Orbital of a Hydrogen Atom')
+st.title('Interactive and Denser Visualization of the 1s Orbital of a Hydrogen Atom')
 
 if st.button('Plot Ψ₁ₛ'):
     fig = plot_3d_psi()
