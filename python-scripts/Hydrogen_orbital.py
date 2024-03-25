@@ -45,3 +45,6 @@ if st.button('Plot Ψ₁ₛ'):
     fig = plot_3d_psi()
     st.plotly_chart(fig, use_container_width=True)
 
+
+## need to add two orbitals and plot them, have a slider to bring them together and see the interaction
+
