@@ -9,20 +9,22 @@ def psi_1s(r):
     """Calculate the wavefunction of 1s orbital."""
     return np.pi**-0.5 * np.exp(-r/a0)
 
-def plot_3d_psi():
+def plot_3d_psi(R):
     # Create a denser grid
-    x = np.linspace(-3, 3, 100)  # Increased number of points
-    y = np.linspace(-3, 3, 100)
-    z = np.linspace(-3, 3, 100)
+    x = np.linspace(-5, 5, 100)
+    y = np.linspace(-5, 5, 100)
+    z = np.linspace(-5, 5, 100)
     X, Y, Z = np.meshgrid(x, y, z)
-    R = np.sqrt(X**2 + Y**2 + Z**2)
+    
+    # Positions of the two hydrogen atoms
+    R1 = np.sqrt((X + R/2)**2 + Y**2 + Z**2)  # Hydrogen 1
+    R2 = np.sqrt((X - R/2)**2 + Y**2 + Z**2)  # Hydrogen 2
 
-    # Calculate wavefunction
-    Psi = psi_1s(R)**2  # Plotting the probability density
+    # Calculate wavefunction for both atoms and sum them
+    Psi = psi_1s(R1)**2 + psi_1s(R2)**2
 
-    # Selecting a higher threshold for visualization to manage the density
-    threshold = Psi.max()/20  # Adjusted for denser plot
-    # Extract the coordinates and values that meet the threshold
+    # Selecting a higher threshold for visualization
+    threshold = Psi.max()/20
     xs, ys, zs = X[Psi > threshold], Y[Psi > threshold], Z[Psi > threshold]
     values = Psi[Psi > threshold]
 
@@ -30,21 +32,20 @@ def plot_3d_psi():
     fig = go.Figure(data=[go.Scatter3d(x=xs.flatten(), y=ys.flatten(), z=zs.flatten(),
                                        mode='markers',
                                        marker=dict(size=2,
-                                                   color=values.flatten(),  # Set color to probability density
-                                                   colorscale='Blues',     # Use a blue color scale
+                                                   color=values.flatten(),
+                                                   colorscale='Blues',
                                                    opacity=0.5))])
-    # Update plot layout for a better visual
     fig.update_layout(margin=dict(l=0, r=0, b=0, t=0), scene=dict(aspectmode='cube'))
 
     return fig
 
-# Streamlit app
-st.title('Interactive and Denser Visualization of the 1s Orbital of a Hydrogen Atom')
+# Streamlit app setup
+st.title('Interaction Visualization of Two Hydrogen Atoms')
 
-if st.button('Plot Ψ₁ₛ'):
-    fig = plot_3d_psi()
+# Slider for adjusting the separation distance
+R = st.slider('Separation distance between hydrogen atoms (in a.u.)', 0.1, 5.0, 2.0)
+
+if st.button('Plot Ψ for Two Hydrogens'):
+    fig = plot_3d_psi(R)
     st.plotly_chart(fig, use_container_width=True)
-
-
-## need to add two orbitals and plot them, have a slider to bring them together and see the interaction
 
