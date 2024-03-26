@@ -9,7 +9,7 @@ def psi_1s(r):
     """Calculate the wavefunction of 1s orbital."""
     return (np.pi**-0.5) * np.exp(-r/a0)
 
-def plot_3d_psi(R):
+def plot_3d_psi(R, phase):
     # Grid setup
     x = np.linspace(-5, 5, 50)  # Reduced for performance in surface plot
     y = np.linspace(-5, 5, 50)
@@ -20,8 +20,11 @@ def plot_3d_psi(R):
     R1 = np.sqrt((X + R/2)**2 + Y**2 + Z**2)  # Hydrogen 1
     R2 = np.sqrt((X - R/2)**2 + Y**2 + Z**2)  # Hydrogen 2
 
-    # Calculate wavefunction for both atoms and sum them
-    Psi = psi_1s(R1)**2 + psi_1s(R2)**2
+    # Calculate wavefunction for both atoms
+    if phase == 'In-Phase':
+        Psi = psi_1s(R1)**2 + psi_1s(R2)**2
+    else:  # Out-of-Phase
+        Psi = np.abs(psi_1s(R1)**2 - psi_1s(R2)**2)  # Absolute value to visualize the density
 
     # Visualization threshold for the isosurface
     threshold = Psi.max()/10  # Adjust if needed for clearer visualization
@@ -48,9 +51,11 @@ def plot_3d_psi(R):
 # Streamlit app setup
 st.title('Interactive Visualization of Two Hydrogen Atoms')
 
+phase = st.radio("Choose the orbital phase:", ('In-Phase', 'Out-of-Phase'))
+
 # Using the slider to automatically update the plot
 R = st.slider('Separation distance between hydrogen atoms (in a.u.)', 0.1, 5.0, 2.0, on_change=None)
 
-fig = plot_3d_psi(R)
+fig = plot_3d_psi(R, phase)
 st.plotly_chart(fig, use_container_width=True)
 
