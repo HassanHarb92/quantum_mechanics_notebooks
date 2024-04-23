@@ -2,6 +2,10 @@ import streamlit as st
 import importlib.util
 import sys
 
+st.title("Quantum chemistry interactive apps")
+st.markdown("Select app from drop-down menu")
+st.markdown("beta version")
+
 # List of apps
 apps = {
     "Hydrogen Orbital": "Hydrogen_orbital.py",
