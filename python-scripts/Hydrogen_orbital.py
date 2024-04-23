@@ -48,14 +48,20 @@ def plot_3d_psi(R, phase):
 
     return fig
 
-# Streamlit app setup
-st.title('Interactive Visualization of Two Hydrogen Atoms')
+def main():
 
-phase = st.radio("Choose the orbital phase:", ('In-Phase', 'Out-of-Phase'))
+# Streamlit app setup
+    st.title('Interactive Visualization of Two Hydrogen Atoms')
+
+    phase = st.radio("Choose the orbital phase:", ('In-Phase', 'Out-of-Phase'))
 
 # Using the slider to automatically update the plot
-R = st.slider('Separation distance between hydrogen atoms (in a.u.)', 0.1, 5.0, 2.0, on_change=None)
+    R = st.slider('Separation distance between hydrogen atoms (in a.u.)', 0.1, 5.0, 2.0, on_change=None)
 
-fig = plot_3d_psi(R, phase)
-st.plotly_chart(fig, use_container_width=True)
+    fig = plot_3d_psi(R, phase)
+    st.plotly_chart(fig, use_container_width=True)
 
+
+
+if __name__ == "__main__":
+    main()
