@@ -1,6 +1,5 @@
 import streamlit as st
 import importlib.util
-import sys
 
 st.title("Quantum chemistry interactive apps")
 st.markdown("Select app from drop-down menu")
@@ -15,26 +14,25 @@ apps = {
     "Rigid Rotor": "rigid_rotor.py"
 }
 
+# Function to load module with caching
+@st.cache(allow_output_mutation=True)
+def load_module(app_path):
+    spec = importlib.util.spec_from_file_location("module.name", app_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
 # Dropdown to select the app
 selected_app = st.radio("Select an app to run:", list(apps.keys()))
 
+# Check if the current app has changed or needs to be loaded
+if 'current_app' not in st.session_state or st.session_state.current_app != selected_app:
+    st.session_state.module = load_module(apps[selected_app])
+    st.session_state.current_app = selected_app
+
 # Button to run the app
 if st.button("Run App"):
-    # Check if module is already loaded
-    if 'module' not in st.session_state or st.session_state.module_name != selected_app:
-        # Get the file of the selected app
-        app_path = apps[selected_app]
-
-        # Load the module dynamically
-        spec = importlib.util.spec_from_file_location("module.name", app_path)
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-
-        # Store the loaded module in session state
-        st.session_state.module = module
-        st.session_state.module_name = selected_app
-
-    # Execute the main function of the app, if you follow this pattern in your sub-apps
+    # Execute the main function of the app
     if hasattr(st.session_state.module, 'main'):
         st.session_state.module.main()
     else:
