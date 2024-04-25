@@ -15,12 +15,19 @@ apps = {
 }
 
 # Function to load module with caching
-@st.cache(allow_output_mutation=True)
+@st.cache_resources #()#(allow_output_mutation=True)
 def load_module(app_path):
-    spec = importlib.util.spec_from_file_location("module.name", app_path)
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
+    try:
+        spec = importlib.util.spec_from_file_location("module.name", app_path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        st.write(f"Module {app_path} loaded successfully.")
+        return module
+    except Exception as e:
+        st.error(f"Failed to load module {app_path}: {e}")
+        return None
+
+
 
 # Dropdown to select the app
 selected_app = st.radio("Select an app to run:", list(apps.keys()))
