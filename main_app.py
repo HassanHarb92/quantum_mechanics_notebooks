@@ -15,7 +15,7 @@ apps = {
 }
 
 # Function to load module with caching
-@st.cache_resources #()#(allow_output_mutation=True)
+@st.cache_resource #()#(allow_output_mutation=True)
 def load_module(app_path):
     try:
         spec = importlib.util.spec_from_file_location("module.name", app_path)
@@ -45,3 +45,5 @@ if st.button("Run App"):
     else:
         st.error("No main function found in the selected app!")
 
+
+## still not working .. need to fix issue with app reloading
