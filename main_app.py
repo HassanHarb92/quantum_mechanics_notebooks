@@ -47,3 +47,5 @@ if st.button("Run App"):
 
 
 ## still not working .. need to fix issue with app reloading
+## merge all in one py file. try out with two apps first
+
