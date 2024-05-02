@@ -271,6 +271,7 @@ def rigid_rotor():
 
 def main():
     st.sidebar.title("Quantum Chemistry Visualizations")
+    st.sidebar.write("beta version")
     app_option = st.sidebar.radio(
         "Choose the simulation:",
         ('Harmonic Oscillator', 'Hydrogen Orbitals', 'Particle in a Box', 'Particle in a Box 2D', 'Rigid Rotor')
