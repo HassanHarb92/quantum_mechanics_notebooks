@@ -2,35 +2,43 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 
-def plancks_law(frequency, temperature):
-    """Calculate radiation intensity using Planck's law."""
-    h = 6.626e-34  # Planck's constant
-    c = 3.0e+8  # Speed of light
-    k = 1.38e-23  # Boltzmann's constant
-    return (2.0 * h * frequency**3) / (c**2) * 1 / (np.exp((h * frequency) / (k * temperature)) - 1)
+# Constants
+c = 3e8  # Speed of light in meters per second
+h = 6.626e-34  # Planck constant in J*s
+k_B = 1.38e-23  # Boltzmann constant in J/K
 
-def rayleigh_jeans_law(frequency, temperature):
-    """Calculate radiation intensity using Rayleigh-Jeans Law."""
-    c = 3.0e+8  # Speed of light
-    k = 1.38e-23  # Boltzmann's constant
-    return (2 * np.pi * frequency**2 * k * temperature) / c**2
+def rayleigh_jeans(lamb, T):
+    """Rayleigh-Jeans Law"""
+    return (2 * c * k_B * T) / (lamb**4)
 
-st.title("UV Catastrophe & Planck's Solution")
+def planck(lamb, T):
+    """Planck's Law"""
+    exponent = (h * c) / (lamb * k_B * T)
+    return (2 * h * c**2) / (lamb**5) / (np.exp(exponent) - 1)
 
-temperature = st.slider("Temperature (K)", min_value=500, max_value=5000, value=1500, step=100)
+def plot_radiation(T):
+    # Wavelength range (in meters)
+    lambda_min, lambda_max = 1e-9, 3e-6  # from 1 nm to 3000 nm
+    wavelengths = np.linspace(lambda_min, lambda_max, 400)
+    
+    # Calculate intensities
+    intensities_rj = rayleigh_jeans(wavelengths, T)
+    intensities_p = planck(wavelengths, T)
+    
+    # Create plot
+    fig, ax = plt.subplots()
+    ax.plot(wavelengths, intensities_rj, label='Rayleigh-Jeans')
+    ax.plot(wavelengths, intensities_p, label='Planck')
+    ax.set_xlabel('Wavelength (m)')
+    ax.set_ylabel('Intensity (W/m^3)')
+    ax.set_title(f'Blackbody Radiation at T = {T} K')
+    ax.legend()
+    
+    return fig
 
-frequency = np.linspace(1e12, 1e15, 500)  # Frequency range from 1 THz to 1000 THz
-
-planck_intensity = plancks_law(frequency, temperature)
-rj_intensity = rayleigh_jeans_law(frequency, temperature)
-
-fig, ax = plt.subplots()
-ax.plot(frequency, planck_intensity, label="Planck's Law")
-ax.plot(frequency, rj_intensity, label="Rayleigh-Jeans Law", linestyle='--')
-ax.set_xlabel('Frequency (Hz)')
-ax.set_ylabel('Intensity')
-ax.set_title(f'Black Body Radiation at {temperature}K')
-ax.legend()
-
+# Streamlit interface
+st.title("Simulation of the UV Catastrophe")
+T = st.slider("Select Temperature (K)", 1000, 10000, 5000)
+fig = plot_radiation(T)
 st.pyplot(fig)
 
