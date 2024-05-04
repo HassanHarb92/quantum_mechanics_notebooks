@@ -6,3 +6,6 @@
 5. Rigid Rotor
 6. Radial plots for H orbitals
 7. Gaussian-type orbitals & STO-3G plots
+in progress:
+8. UV Catastrophe (Black body radiation)
+9. Double-slit experiment
