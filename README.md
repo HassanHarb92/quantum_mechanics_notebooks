@@ -10,3 +10,4 @@ in progress:
 8. UV Catastrophe (Black body radiation)
 9. Double-slit experiment
 9(b). Double slit with electrons
+10. STO vs GTO orbitals 
