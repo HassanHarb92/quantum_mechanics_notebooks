@@ -11,3 +11,5 @@ in progress:
 9. Double-slit experiment
 9(b). Double slit with electrons
 10. STO vs GTO orbitals 
+11. Vibrations – visualize
+
