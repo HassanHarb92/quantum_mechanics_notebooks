@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from scipy.special import hermite, sph_harm
 from scipy.constants import hbar, pi
 import plotly.graph_objects as go
+import math
 
 # Define the individual app functions
 def harmonic_oscillator():
@@ -26,7 +27,7 @@ def harmonic_oscillator():
     
     # Wavefunction
     def wavefunction(n, x):
-        prefactor = (m * omega / (np.pi * hbar))**(1/4) / np.sqrt(2**n * np.math.factorial(n))
+        prefactor = (m * omega / (np.pi * hbar))**(1/4) / np.sqrt(2**n * math.factorial(n))
         hermite_poly = hermite(n)
         return prefactor * hermite_poly((m * omega / hbar)**0.5 * x) * np.exp(-m * omega * x**2 / (2 * hbar))
     
