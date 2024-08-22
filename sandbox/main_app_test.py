@@ -383,13 +383,59 @@ def quantum_tunneling():
     plt.grid(True)
     st.pyplot(plt)
 
+def particle_in_finite_well():
+    st.sidebar.title("Parameters")
+    V0 = st.sidebar.number_input("Potential well depth (V₀)", value=10.0, step=0.1)
+    L = st.sidebar.number_input("Width of the well (L)", value=2.0, step=0.1)
+    E = st.sidebar.number_input("Energy of the particle (E)", value=5.0, step=0.1)
+    x_min = st.sidebar.number_input("Minimum x", value=-10.0, step=1.0)
+    x_max = st.sidebar.number_input("Maximum x", value=10.0, step=1.0)
+
+    st.title('Particle in a Finite Potential Well')
+
+    def wavefunction_finite_well(x, V0, L, E):
+        """Calculate the wavefunction for a particle in a finite potential well."""
+        k1 = np.sqrt(2 * E / hbar**2) if E < V0 else 0  # Inside the well
+        k2 = np.sqrt(2 * (V0 - E) / hbar**2) if E < V0 else np.sqrt(2 * (E - V0) / hbar**2)  # Outside the well
+
+        def psi_left(x):  # Left region (before the well)
+            return np.exp(k2 * x)
+
+        def psi_well(x):  # Inside the well
+            return np.sin(k1 * (x + L / 2))
+
+        def psi_right(x):  # Right region (after the well)
+            return np.exp(-k2 * x)
+
+        psi = np.piecewise(x,
+                           [x < -L / 2, (-L / 2 <= x) & (x <= L / 2), x > L / 2],
+                           [psi_left, psi_well, psi_right])
+
+        return psi
+
+    x = np.linspace(x_min, x_max, 1000)
+    psi = wavefunction_finite_well(x, V0, L, E)
+
+    plt.figure(figsize=(12, 6))
+    plt.plot(x, np.real(psi), label='Real part of ψ(x)')
+    plt.plot(x, np.imag(psi), label='Imaginary part of ψ(x)', linestyle='dashed')
+    plt.plot(x, np.abs(psi), label='|ψ(x)|', linestyle='dotted')
+    plt.axvline(-L/2, color='red', linestyle='--', label='Well boundary start')
+    plt.axvline(L/2, color='red', linestyle='--', label='Well boundary end')
+    plt.xlabel("Position (x)")
+    plt.ylabel("Wavefunction ψ(x)")
+    plt.title("Wavefunction for Particle in a Finite Potential Well")
+    plt.legend()
+    plt.grid(True)
+    st.pyplot(plt)
+
 def main():
     st.sidebar.title("Quantum Chemistry Visualizations")
     st.sidebar.write("beta version")
     app_option = st.sidebar.radio(
         "Choose the simulation:",
         ('Harmonic Oscillator', 'Hydrogen Orbitals', 'Particle in a Box', 'Particle in a Box 2D', 'Rigid Rotor', 
-         'Harmonic Oscillator 2D', 'Quantum Free Particle in 1D', 'Quantum Tunneling')
+         'Harmonic Oscillator 2D', 'Quantum Free Particle in 1D', 'Quantum Tunneling', 'Particle in a Finite Potential Well')
     )
 
     if app_option == 'Harmonic Oscillator':
@@ -408,8 +454,9 @@ def main():
         free_particle_1d()
     elif app_option == 'Quantum Tunneling':
         quantum_tunneling()
+    elif app_option == 'Particle in a Finite Potential Well':
+        particle_in_finite_well()
 
 if __name__ == "__main__":
     main()
-
 
