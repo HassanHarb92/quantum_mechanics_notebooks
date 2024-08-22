@@ -310,12 +310,86 @@ def harmonic_oscillator_2d():
     st.plotly_chart(fig, use_container_width=True)
 
 
+def free_particle_1d():
+    st.sidebar.title("Parameters")
+    k = st.sidebar.number_input("Wave number (k)", value=1.0, step=0.1)
+    A = st.sidebar.number_input("Amplitude (A)", value=1.0, step=0.1)
+    x_min = st.sidebar.number_input("Minimum x", value=-10.0, step=1.0)
+    x_max = st.sidebar.number_input("Maximum x", value=10.0, step=1.0)
+
+    st.title('Quantum Free Particle in 1D')
+
+    def wavefunction_free_particle(x, k, A):
+        """Calculate the wavefunction for a free particle."""
+        return A * np.exp(1j * k * x)
+
+    x = np.linspace(x_min, x_max, 1000)
+    psi = wavefunction_free_particle(x, k, A)
+
+    plt.figure(figsize=(12, 6))
+    plt.plot(x, np.real(psi), label='Real part of ψ(x)')
+    plt.plot(x, np.imag(psi), label='Imaginary part of ψ(x)', linestyle='dashed')
+    plt.plot(x, np.abs(psi), label='|ψ(x)|', linestyle='dotted')
+    plt.xlabel("Position (x)")
+    plt.ylabel("Wavefunction ψ(x)")
+    plt.title("Wavefunction of a Quantum Free Particle in 1D")
+    plt.legend()
+    plt.grid(True)
+    st.pyplot(plt)
+
+def quantum_tunneling():
+    st.sidebar.title("Parameters")
+    V0 = st.sidebar.number_input("Barrier height (V₀)", value=10.0, step=0.1)
+    E = st.sidebar.number_input("Energy of particle (E)", value=5.0, step=0.1)
+    a = st.sidebar.number_input("Barrier width (a)", value=2.0, step=0.1)
+    x_min = st.sidebar.number_input("Minimum x", value=-10.0, step=1.0)
+    x_max = st.sidebar.number_input("Maximum x", value=10.0, step=1.0)
+
+    st.title('Quantum Tunneling Through a Potential Barrier')
+
+    def wavefunction_tunneling(x, V0, E, a):
+        """Calculate the wavefunction for quantum tunneling."""
+        k1 = np.sqrt(2 * E / hbar**2) if E > 0 else 0
+        k2 = np.sqrt(2 * (V0 - E) / hbar**2) if E < V0 else k1
+
+        def psi_left(x):  # Left region (before the barrier)
+            return np.exp(1j * k1 * x) + np.exp(-1j * k1 * x)
+
+        def psi_barrier(x):  # Inside the barrier
+            return np.exp(-k2 * x) + np.exp(k2 * x)
+
+        def psi_right(x):  # Right region (after the barrier)
+            return np.exp(1j * k1 * x)
+
+        psi = np.piecewise(x,
+                           [x < -a / 2, (-a / 2 <= x) & (x <= a / 2), x > a / 2],
+                           [psi_left, psi_barrier, psi_right])
+
+        return psi
+
+    x = np.linspace(x_min, x_max, 1000)
+    psi = wavefunction_tunneling(x, V0, E, a)
+
+    plt.figure(figsize=(12, 6))
+    plt.plot(x, np.real(psi), label='Real part of ψ(x)')
+    plt.plot(x, np.imag(psi), label='Imaginary part of ψ(x)', linestyle='dashed')
+    plt.plot(x, np.abs(psi), label='|ψ(x)|', linestyle='dotted')
+    plt.axvline(-a/2, color='red', linestyle='--', label='Barrier start')
+    plt.axvline(a/2, color='red', linestyle='--', label='Barrier end')
+    plt.xlabel("Position (x)")
+    plt.ylabel("Wavefunction ψ(x)")
+    plt.title("Wavefunction for Quantum Tunneling")
+    plt.legend()
+    plt.grid(True)
+    st.pyplot(plt)
+
 def main():
     st.sidebar.title("Quantum Chemistry Visualizations")
     st.sidebar.write("beta version")
     app_option = st.sidebar.radio(
         "Choose the simulation:",
-        ('Harmonic Oscillator', 'Hydrogen Orbitals', 'Particle in a Box', 'Particle in a Box 2D', 'Rigid Rotor', 'Harmonic Oscillator 2D')
+        ('Harmonic Oscillator', 'Hydrogen Orbitals', 'Particle in a Box', 'Particle in a Box 2D', 'Rigid Rotor', 
+         'Harmonic Oscillator 2D', 'Quantum Free Particle in 1D', 'Quantum Tunneling')
     )
 
     if app_option == 'Harmonic Oscillator':
@@ -330,7 +404,12 @@ def main():
         rigid_rotor()
     elif app_option == 'Harmonic Oscillator 2D':
         harmonic_oscillator_2d()
+    elif app_option == 'Quantum Free Particle in 1D':
+        free_particle_1d()
+    elif app_option == 'Quantum Tunneling':
+        quantum_tunneling()
 
 if __name__ == "__main__":
     main()
+
 
