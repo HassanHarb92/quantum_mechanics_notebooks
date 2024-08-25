@@ -429,13 +429,90 @@ def particle_in_finite_well():
     plt.grid(True)
     st.pyplot(plt)
 
+import streamlit as st
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.constants import hbar, pi
+from scipy.special import factorial
+from scipy.integrate import simps
+
+def franck_condon():
+    st.sidebar.title("Parameters")
+    displacement = st.sidebar.slider("Displacement between ground and excited state potential (Δx)", 0.0, 2.0, 0.5, 0.1)
+    n_vib_ground = st.sidebar.slider("Number of vibrational levels in the ground state", 1, 10, 3)
+    n_vib_excited = st.sidebar.slider("Number of vibrational levels in the excited state", 1, 10, 3)
+
+    st.title("Franck-Condon Principle and Electronic Transitions")
+
+    # Harmonic oscillator potential function
+    def harmonic_potential(x, k):
+        return 0.5 * k * x**2
+
+    # Vibrational wavefunction (harmonic oscillator)
+    def harmonic_wavefunction(n, x, k, m):
+        normalization = (1 / np.sqrt(2**n * factorial(n))) * (m * k / (pi * hbar))**0.25
+        hermite_polynomial = np.polynomial.hermite.hermval(np.sqrt(m * k / hbar) * x, [0]*n + [1])
+        return normalization * hermite_polynomial * np.exp(-0.5 * m * k * x**2 / hbar)
+
+    # Parameters for the plot
+    x = np.linspace(-3, 3, 1000)
+    k_ground = 1  # Arbitrary units for the force constant
+    m = 1  # Mass (in arbitrary units)
+    k_excited = 1  # Assume similar force constant for the excited state
+
+    # Calculate potentials
+    V_ground = harmonic_potential(x, k_ground)
+    V_excited = harmonic_potential(x - displacement, k_excited)
+
+    # Plot the potential energy curves
+    plt.figure(figsize=(10, 6))
+    plt.plot(x, V_ground, label='Ground State Potential', color='blue')
+    plt.plot(x, V_excited, label='Excited State Potential', color='red')
+
+    # Plot the vibrational levels and wavefunctions
+    for n in range(n_vib_ground):
+        E_n = (n + 0.5) * hbar * np.sqrt(k_ground / m)
+        psi_n = harmonic_wavefunction(n, x, k_ground, m) + E_n
+        plt.plot(x, psi_n, color='blue', alpha=0.6)
+        plt.hlines(E_n, -3, 3, colors='blue', linestyles='--', alpha=0.5)
+
+    for n in range(n_vib_excited):
+        E_n_excited = (n + 0.5) * hbar * np.sqrt(k_excited / m)
+        psi_n_excited = harmonic_wavefunction(n, x - displacement, k_excited, m) + E_n_excited
+        plt.plot(x, psi_n_excited, color='red', alpha=0.6)
+        plt.hlines(E_n_excited, -3, 3, colors='red', linestyles='--', alpha=0.5)
+
+        # Calculate Franck-Condon factors (integral of the overlap between wavefunctions)
+        fc_factors = []
+        for m_level in range(n_vib_ground):
+            psi_m_ground = harmonic_wavefunction(m_level, x, k_ground, m)
+            overlap = simps(psi_n_excited * psi_m_ground, x)
+            fc_factors.append(overlap**2)
+
+        # Visualize the transitions based on Franck-Condon factors
+        for m_level, fc_factor in enumerate(fc_factors):
+            if fc_factor > 0.01:  # Only show significant overlaps
+                E_m_ground = (m_level + 0.5) * hbar * np.sqrt(k_ground / m)
+                plt.plot([x[np.argmax(psi_n_excited)], x[np.argmax(harmonic_wavefunction(m_level, x, k_ground, m))]], 
+                         [E_n_excited, E_m_ground], color='green', alpha=fc_factor, linewidth=2*fc_factor)
+
+    plt.title("Franck-Condon Principle: Electronic Transitions in a Molecule")
+    plt.xlabel("Position (x)")
+    plt.ylabel("Energy")
+    plt.legend()
+    plt.grid(True)
+    st.pyplot(plt)
+
 def main():
     st.sidebar.title("Quantum Chemistry Visualizations")
     st.sidebar.write("beta version")
     app_option = st.sidebar.radio(
         "Choose the simulation:",
         ('Harmonic Oscillator', 'Hydrogen Orbitals', 'Particle in a Box', 'Particle in a Box 2D', 'Rigid Rotor', 
-         'Harmonic Oscillator 2D', 'Quantum Free Particle in 1D', 'Quantum Tunneling', 'Particle in a Finite Potential Well')
+         'Harmonic Oscillator 2D', 'Quantum Free Particle in 1D', 'Quantum Tunneling', 
+         'Particle in a Finite Potential Well', 'Molecular Orbitals', 'Vibrational Modes', 
+         'Franck-Condon Principle', 'Rotational Spectra', 'Electron Probability Density', 
+         'Chemical Bonding', 'Periodic Trends', 'H2+ Molecule Ion')
     )
 
     if app_option == 'Harmonic Oscillator':
@@ -456,7 +533,11 @@ def main():
         quantum_tunneling()
     elif app_option == 'Particle in a Finite Potential Well':
         particle_in_finite_well()
+    elif app_option == 'Franck-Condon Principle':
+        franck_condon()
+    # Add the other applications as needed
 
 if __name__ == "__main__":
     main()
+
 
